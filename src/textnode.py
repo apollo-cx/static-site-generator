@@ -3,12 +3,12 @@ from htmlnode import HTMLNode, ParentNode, LeafNode
 
 
 class TextType(Enum):
-    TEXT = "text"
-    BOLD = "bold text"
-    ITALIC = "italic text"
-    CODE = "code"
-    LINK = "link"
-    IMAGE = "image"
+    TEXT = "Text"
+    BOLD = "Bold"
+    ITALIC = "Italic"
+    CODE = "Code"
+    LINK = "Link"
+    IMAGE = "Image"
 
 
 class TextNode:
