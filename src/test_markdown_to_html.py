@@ -9,6 +9,7 @@ from markdown_to_html import (
     text_to_textnodes,
     markdown_to_blocks,
     block_to_blocktype,
+    markdown_to_html_node,
     BlockType,
 )
 
@@ -248,6 +249,87 @@ class BlockToBlocktype(unittest.TestCase):
         block = "1. First item\n2. Second item\n3. Third item"
         block_type = block_to_blocktype(block)
         self.assertEqual(block_type, BlockType.ORDERED_LIST)
+
+class MarkdownToHTMLNode(unittest.TestCase):
+    def test_paragraphs(self):
+        md = """
+This is **bolded** paragraph
+text in a p
+tag here
+
+This is another paragraph with _italic_ text and `code` here
+
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><p>This is <b>bolded</b> paragraph text in a p tag here</p><p>This is another paragraph with <i>italic</i> text and <code>code</code> here</p></div>",
+        )
+
+    def test_codeblock(self):
+        md = """
+```This is text that _should_ remain
+the **same** even with inline stuff```
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff\n</code></pre></div>",
+        )
+
+    def test_markdown_to_html_node_paragraph(self):
+        md = "This is a simple paragraph."
+        html_node = markdown_to_html_node(md)
+        expected_html = "<div><p>This is a simple paragraph.</p></div>"
+        self.assertEqual(html_node.to_html(), expected_html)
+
+    def test_markdown_to_html_node_heading(self):
+        md = "# This is a heading"
+        html_node = markdown_to_html_node(md)
+        expected_html = "<div><h1>This is a heading</h1></div>"
+        self.assertEqual(html_node.to_html(), expected_html)
+
+    def test_markdown_to_html_node_code(self):
+        md = "```\nprint('Hello, world!')\n```"
+        html_node = markdown_to_html_node(md)
+        expected_html = """<div><pre><code>\nprint('Hello, world!')\n</code></pre></div>"""
+        self.assertEqual(html_node.to_html(), expected_html)
+
+    def test_markdown_to_html_node_unordered_list(self):
+        md = "- Item 1\n- Item 2\n- Item 3"
+        html_node = markdown_to_html_node(md)
+        expected_html = "<div><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul></div>"
+        self.assertEqual(html_node.to_html(), expected_html)
+
+    def test_markdown_to_html_node_ordered_list(self):
+        md = "1. First item\n2. Second item\n3. Third item"
+        html_node = markdown_to_html_node(md)
+        expected_html = "<div><ol><li>First item</li><li>Second item</li><li>Third item</li></ol></div>"
+        self.assertEqual(html_node.to_html(), expected_html)
+    
+    def test_markdown_to_html_node_quote(self):
+        md = "> This is a blockquote."
+        html_node = markdown_to_html_node(md)
+        expected_html = "<div><blockquote>This is a blockquote.</blockquote></div>"
+        self.assertEqual(html_node.to_html(), expected_html)
+    
+    def test_markdown_to_html_node_multiple_blocks(self):
+        md = "# Heading\n\nThis is a paragraph.\n\n- Item 1\n- Item 2"
+        html_node = markdown_to_html_node(md)
+        expected_html = "<div><h1>Heading</h1><p>This is a paragraph.</p><ul><li>Item 1</li><li>Item 2</li></ul></div>"
+        self.assertEqual(html_node.to_html(), expected_html)
+    
+    def test_markdown_to_html_node_combined_formatting(self):
+        md = "This is **bold** text with an ![image](http://img.url) and a [link](http://link.url)."
+        html_node = markdown_to_html_node(md)
+        expected_html = '<div><p>This is <b>bold</b> text with an <img src="http://img.url" alt="image"> and a <a href="http://link.url">link</a>.</p></div>'
+        self.assertEqual(html_node.to_html(), expected_html)
+    
+
 
 
 if __name__ == "__main__":

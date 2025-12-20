@@ -1,6 +1,9 @@
+from calendar import c
 from enum import Enum
+from pydoc import text
 import re
-from textnode import TextNode, TextType
+from typing import Counter
+from textnode import TextNode, TextType, text_node_to_html_node
 from htmlnode import HTMLNode, ParentNode, LeafNode
 
 
@@ -9,8 +12,8 @@ class BlockType(Enum):
     HEADING = "Heading"
     CODE = "Code"
     QUOTE = "Quote"
-    UNORDERED_LIST = "UnorderedList"
-    ORDERED_LIST = "OrderedList"
+    UNORDERED_LIST = "Unordered List"
+    ORDERED_LIST = "Ordered List"
 
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
@@ -30,8 +33,7 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
         if len(parts) % 2 == 0:
             raise Exception("umatched delimiter")
 
-        for i in range(len(parts)):
-            part = parts[i]
+        for i, part in enumerate(parts):
             if part == "":
                 continue
             if i % 2 == 0:
@@ -129,8 +131,7 @@ def text_to_textnodes(text):
 def markdown_to_blocks(markdown):
     blocks = markdown.split("\n\n")
 
-    for i in range(len(blocks)):
-        block = blocks[i]
+    for i, block in enumerate(blocks):
         block = block.strip()
         if block == "":
             blocks.pop(i)
@@ -166,3 +167,82 @@ def block_to_blocktype(block):
         return BlockType.ORDERED_LIST
 
     return BlockType.PARAGRAPH
+
+def block_to_children(block):
+    blocktype = block_to_blocktype(block)
+
+    match blocktype:
+        case BlockType.PARAGRAPH:
+            text = block.replace("\n", " ")
+            text_nodes = text_to_textnodes(text)
+            parent_node = ParentNode("p", [text_node_to_html_node(node) for node in text_nodes])
+            return parent_node
+        
+        case BlockType.HEADING:
+            level = len(re.match(r"^(#+) ", block).group(1))
+            text = block[level + 1:]
+            text_nodes = text_to_textnodes(text)
+            parent_node = ParentNode(f"h{level}", [text_node_to_html_node(node) for node in text_nodes])
+            return parent_node
+               
+        case BlockType.CODE:
+            code_content = block[3:-3]
+            if '\n' in code_content and not code_content.endswith('\n'):
+                code_content += '\n'
+            node = TextNode(code_content, TextType.CODE)
+            leaf_node = text_node_to_html_node(node)
+            parent_node = ParentNode("pre", [leaf_node])
+            return parent_node
+        
+        case BlockType.QUOTE:
+            lines = block.split("\n")
+            child_nodes = []
+            full_text = ""
+            for line in lines:
+                text = line[1:].strip()
+                full_text += text + "\n"
+            full_text = full_text.strip()
+            text_nodes = text_to_textnodes(full_text)
+            parent_node = ParentNode("blockquote", [text_node_to_html_node(node) for node in text_nodes])
+            return parent_node
+        
+        case BlockType.UNORDERED_LIST:
+            lines = block.split("\n")
+            child_nodes = []
+            for line in lines:
+                text = line[2:].strip()
+                text_nodes = text_to_textnodes(text)
+                list_item_node = ParentNode("li", [text_node_to_html_node(node) for node in text_nodes])
+                child_nodes.append(list_item_node)
+            parent_node = ParentNode("ul", child_nodes)
+            return parent_node 
+        
+        case BlockType.ORDERED_LIST:
+            lines = block.split("\n")
+            child_nodes = []
+            for line in lines:
+                match = re.match(r"^\d+\. (.+)", line)
+                if not match:
+                    raise ValueError("invalid ordered list item")
+                text = match.group(1).strip()
+                text_nodes = text_to_textnodes(text)
+                list_item_node = ParentNode("li", [text_node_to_html_node(node) for node in text_nodes])
+                child_nodes.append(list_item_node)
+            parent_node = ParentNode("ol", child_nodes)
+            return parent_node
+        
+        case _:
+            raise ValueError("unknown block type")
+            
+
+def markdown_to_html_node(markdown):
+    html = []
+    blocks = markdown_to_blocks(markdown)
+
+    for block in blocks:
+        child_nodes = block_to_children(block)
+        html.append(child_nodes)
+    
+    parent_node = ParentNode("div", html)
+    
+    return parent_node
