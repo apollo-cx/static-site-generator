@@ -1,7 +1,6 @@
 import os
 import sys
-from tempfile import template
-from htmlnode import HTMLNode, ParentNode, LeafNode
+
 from markdown_to_html import markdown_to_html_node
 from staticcontent import copy_static_to_public
 
@@ -39,6 +38,7 @@ def generate_pages(content_path, template_path, dest_path, basepath):
                 page.write(template)
             
             print("Finished generating")
+
     elif os.path.isdir(content_path):
         for item in os.listdir(content_path):
             item_path = os.path.join(content_path, item)

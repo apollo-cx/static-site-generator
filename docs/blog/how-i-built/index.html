@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>How I Built This Website</title>
-    <link href="/static-site-generator/index.css" rel="stylesheet" />
+    <link href="/index.css" rel="stylesheet" />
   </head>
 
   <body>
@@ -12,8 +12,8 @@
 # My Page Title
 Page content in Markdown.
 </code></pre><h2>Generator flow</h2><p>The generator runs from src/main.py and performs these steps:</p><p>1. Copy static assets from static/ to the output (docs/) 2. Walk the content/ directory recursively 3. For each .md file:   - Read the file and extract the title from the first "# " heading   - Convert Markdown to HTML using the Markdown parser   - Load template.html and replace the placeholders for Title and Content   - Rewrite absolute asset and link paths using a configurable basepath:</p><pre><code>text
-href="/static-site-generator/  →  href="{basepath}
-src="/static-site-generator/   →  src="{basepath}
+href="/  →  href="{basepath}
+src="/   →  src="{basepath}
 </code></pre><ul><li>Write the resulting HTML into the mirrored path under docs/</li></ul><h2>Local development</h2><ul><li>Default basepath is "/", suitable for local serving</li><li>Build locally:</li></ul><pre><code>bash
 python3 src/main.py
 python3 -m http.server 8888 -d docs
