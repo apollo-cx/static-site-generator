@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>How I Built This Website</title>
+    <link href="/static-site-generator/index.css" rel="stylesheet" />
+  </head>
+
+  <body>
+    <article><div><h1>How I Built This Website</h1><p><a href="../..">< Back Home</a></p><p>This post documents how the static site generator works and how this site is built and deployed.</p><h2>Overview</h2><ul><li>Content is written in Markdown under content/</li><li>A simple Python generator converts Markdown to HTML using a template</li><li>Static assets (CSS, images) are copied from static/ to the output</li><li>The final site is emitted to docs/ for GitHub Pages</li></ul><h2>Content structure</h2><ul><li>Home page: content/index.md</li><li>Contact page: content/contact/index.md</li><li>Blog index: content/blog/index.md</li><li>Individual posts: content/blog/<post-slug>/index.md</li></ul><p>Each page starts with a title line using a single leading hash (#), for example:</p><pre><code>text
+# My Page Title
+Page content in Markdown.
+</code></pre><h2>Generator flow</h2><p>The generator runs from src/main.py and performs these steps:</p><p>1. Copy static assets from static/ to the output (docs/) 2. Walk the content/ directory recursively 3. For each .md file:   - Read the file and extract the title from the first "# " heading   - Convert Markdown to HTML using the Markdown parser   - Load template.html and replace the placeholders for Title and Content   - Rewrite absolute asset and link paths using a configurable basepath:</p><pre><code>text
+href="/static-site-generator/  →  href="{basepath}
+src="/static-site-generator/   →  src="{basepath}
+</code></pre><ul><li>Write the resulting HTML into the mirrored path under docs/</li></ul><h2>Local development</h2><ul><li>Default basepath is "/", suitable for local serving</li><li>Build locally:</li></ul><pre><code>bash
+python3 src/main.py
+python3 -m http.server 8888 -d docs
+# Open http://localhost:8888/
+</code></pre><h2>Production build (GitHub Pages)</h2><ul><li>The build.sh script runs:</li></ul><pre><code>bash
+python3 src/main.py "/static-site-generator/"
+</code></pre><ul><li>Push the generated docs/ to the main branch</li><li>Configure GitHub Pages: Source = main, Folder = /docs</li><li>Live URL: https://USERNAME.github.io/static-site-generator/</li></ul><h2>Adding a new blog post</h2><ol><li>Create a new folder: content/blog/my-first-post/</li><li>Add index.md with a # title and Markdown content</li><li>Link it from content/blog/index.md</li><li>Rebuild and push</li></ol><p>That’s it — a fast, minimal workflow focused on content.</p></div></article>
+  </body>
+</html>

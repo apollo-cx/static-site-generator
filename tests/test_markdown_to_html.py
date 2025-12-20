@@ -1,6 +1,6 @@
 import unittest
-from textnode import TextNode, TextType
-from markdown_to_html import (
+from src.textnode import TextNode, TextType
+from src.markdown_to_html import (
     split_nodes_delimiter,
     extract_markdown_images,
     extract_markdown_links,

@@ -1,9 +1,10 @@
-# Contact the Author
+# Contact
 
-[< Back Home](/)
+[< Back Home](..)
 
-Give me a call anytime to chat about Tolkien!
+Want to get in touch? Send me an email or open an issue on the repository.
 
-`555-555-5555`
+- Email: niels.treichlerd@gmail.com
+- GitHub: https://github.com/apollo-cx
 
-**"Váya márië."**
+I'll do my best to respond quickly.

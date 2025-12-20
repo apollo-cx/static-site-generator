@@ -1,5 +1,5 @@
 from unittest import TestCase
-from main import extract_title
+from src.main import extract_title
 
 class TestExtractTitle(TestCase):
     def test_extract_title_with_title(self):
