@@ -1,1 +1,7 @@
+# Cache files
 __pycache__/
+
+# Content Folders
+public/
+content/
+static/
