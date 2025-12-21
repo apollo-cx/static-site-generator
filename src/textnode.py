@@ -1,5 +1,9 @@
 from enum import Enum
-from htmlnode import HTMLNode, ParentNode, LeafNode
+
+try:
+    from .htmlnode import HTMLNode, ParentNode, LeafNode
+except ImportError:
+    from htmlnode import HTMLNode, ParentNode, LeafNode
 
 
 class TextType(Enum):
